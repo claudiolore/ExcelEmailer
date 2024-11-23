@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using OfficeOpenXml; // Richiede il pacchetto NuGet EPPlus
+using OfficeOpenXml;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Collections.Generic;
@@ -11,7 +11,6 @@ namespace ExcelEmailSender
     {
         static void Main(string[] args)
         {
-            // Impostazione della licenza EPPlus (necessaria dalla versione 5)
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
             Console.WriteLine("Excel Email Sender");
@@ -48,18 +47,17 @@ namespace ExcelEmailSender
             Console.Write("\nVuoi allegare un PDF? (S/N): ");
             bool attachPdf = Console.ReadLine().ToUpper() == "S";
 
-            Console.WriteLine(); // Riga vuota per separazione
             string pdfPath = "";
             if (attachPdf)
             {
-                Console.Write("Inserisci il percorso del file PDF: ");
+                Console.Write("\nInserisci il percorso del file PDF: ");
                 pdfPath = Console.ReadLine();
             }
 
             // Configurazione email mittente
             Console.Write("\nInserisci l'email del mittente: ");
             string senderEmail = Console.ReadLine();
-            Console.Write("Inserisci la password dell'email: ");
+            Console.Write("\nInserisci la password dell'email: ");
             string senderPassword = Console.ReadLine();
 
             Console.WriteLine("\nInizio invio email...\n");
@@ -70,11 +68,11 @@ namespace ExcelEmailSender
                 try
                 {
                     SendEmail(senderEmail, senderPassword, email, subject, body, attachPdf ? pdfPath : null);
-                    Console.WriteLine($"[SUCCESSO] Email inviata con successo a: {email}");
+                    Console.WriteLine($"\n[SUCCESSO] Email inviata con successo a: {email}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERRORE] Errore nell'invio dell'email a {email}: {ex.Message}");
+                    Console.WriteLine($"\n[ERRORE] Errore nell'invio dell'email a {email}: {ex.Message}");
                 }
             }
 
@@ -91,7 +89,7 @@ namespace ExcelEmailSender
             {
                 if (package.Workbook.Worksheets.Count == 0)
                 {
-                    Console.WriteLine("\nATTYENZIONE!!! Il file Excel non contiene fogli di lavoro!");
+                    Console.WriteLine("\nATTENZIONE!!! Il file Excel non contiene fogli di lavoro!");
                     return emails;
                 }
 
@@ -100,7 +98,7 @@ namespace ExcelEmailSender
                 // Verifichiamo se ci sono righe
                 if (worksheet.Dimension == null)
                 {
-                    Console.WriteLine("\nATTYENZIONE!!! Il foglio di lavoro è vuoto!");
+                    Console.WriteLine("\nATTENZIONE!!! Il foglio di lavoro è vuoto!");
                     return emails;
                 }
 
