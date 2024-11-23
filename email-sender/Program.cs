@@ -51,7 +51,7 @@ namespace ExcelEmailSender
             if (attachPdf)
             {
                 Console.Write("\nInserisci il percorso del file PDF: ");
-                pdfPath = Console.ReadLine();
+                pdfPath = Console.ReadLine().Trim('"');
             }
 
             // Configurazione email mittente
