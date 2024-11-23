@@ -95,7 +95,7 @@ namespace ExcelEmailSender
 
                 var worksheet = package.Workbook.Worksheets[0];
 
-                // Verifichiamo se ci sono righe
+                // Verifica se il foglio contiene righe
                 if (worksheet.Dimension == null)
                 {
                     Console.WriteLine("\nATTENZIONE!!! Il foglio di lavoro è vuoto!");
@@ -103,21 +103,43 @@ namespace ExcelEmailSender
                 }
 
                 int rowCount = worksheet.Dimension.Rows;
+                int colCount = worksheet.Dimension.Columns;
 
-                // La colonna Email è la 6° (indice 6)
-                for (int row = 2; row <= rowCount; row++) // dalla seconda riga per intestaione colonne
+                // Cerca la colonna "Email" nella prima riga
+                int emailColumnIndex = -1;
+                for (int col = 1; col <= colCount; col++)
                 {
-                    string email = worksheet.Cells[row, 6].Value?.ToString();
+                    string header = worksheet.Cells[1, col].Value?.ToString()?.Trim();
+                    if (!string.IsNullOrEmpty(header) && header.Equals("Email", StringComparison.OrdinalIgnoreCase))
+                    {
+                        emailColumnIndex = col;
+                        break;
+                    }
+                }
+
+                if (emailColumnIndex == -1)
+                {
+                    Console.WriteLine("\nATTENZIONE!!! Non è stata trovata alcuna colonna 'Email' nella prima riga!");
+                    return emails;
+                }
+
+                Console.WriteLine($"\nColonna 'Email' trovata all'indice: {emailColumnIndex}");
+
+                // Leggi le email dalla colonna identificata
+                for (int row = 2; row <= rowCount; row++) // Dalla seconda riga in poi (saltando l'intestazione)
+                {
+                    string email = worksheet.Cells[row, emailColumnIndex].Value?.ToString()?.Trim();
                     if (!string.IsNullOrEmpty(email))
                     {
                         emails.Add(email);
-                        Console.WriteLine($"\nATTYENZIONE!!! Email trovata: {email}"); // Aggiunto per debug
+                        Console.WriteLine($"-Email trovata: {email}");
                     }
                 }
             }
 
             return emails;
         }
+
 
         //------------------------------------------------------------------------------------------------------------------
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
