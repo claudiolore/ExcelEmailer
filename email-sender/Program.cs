@@ -16,7 +16,6 @@ namespace ExcelEmailSender
             while (true) 
             { 
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                //SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
                 
                 string subject = string.Empty;
                 string body = string.Empty;
@@ -310,6 +309,7 @@ namespace ExcelEmailSender
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
                             string subject, string body, string pdfPath = null)
         {
+            //using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
             using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
             {
 
