@@ -4,6 +4,8 @@ using OfficeOpenXml;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Collections.Generic;
+using email_sender;
+using System.Net;
 
 namespace ExcelEmailSender
 {
@@ -14,11 +16,14 @@ namespace ExcelEmailSender
             while (true) 
             { 
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+                //SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+                
                 string subject = string.Empty;
                 string body = string.Empty;
                 string senderEmail;
                 string senderPassword;
+                string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\prova.pdf";
+
 
                 Console.WriteLine("Excel Email Sender");
                 Console.WriteLine("BENVENUTO");
@@ -35,10 +40,11 @@ namespace ExcelEmailSender
                     Console.ReadKey();
                     continue;
                 }
+                List<Azienda> listaAziende = ReadAziendeFromExcel(excelPath);
 
                 //LETTURA FILE E NUMERO EMAIL
                 Console.WriteLine($"\nLettura del file: {excelPath}\n");
-                List<string> emailAddresses = ReadEmailsFromExcel(excelPath);
+                List<string> emailAddresses = GetEmails(listaAziende);
                 
                 Console.WriteLine($"\nTrovate {emailAddresses.Count} email da inviare.");
                 if (emailAddresses.Count == 0)
@@ -99,6 +105,7 @@ namespace ExcelEmailSender
                         break ;
                     }
                 }
+
                 //VALIDAZIONE CREDENZIALI
                 while (true)
                 {
@@ -122,14 +129,31 @@ namespace ExcelEmailSender
 
                 int emailInviate = 0;
                 int emailFallite = 0;
+
                 //INVIO EMAIL
                 foreach (string email in emailAddresses)
                 {
                     try
                     {
-                        SendEmail(senderEmail, senderPassword, email, subject, body, smtpClient, attachPdf ? pdfPath : null);
+                        string pdfDaModificare = pdfPath;
+
+                        Azienda azienda = listaAziende.FirstOrDefault(a => a.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+                        if (azienda == null)
+                        {
+                            Console.WriteLine($"\n[AVVISO] Nessuna azienda trovata per l'email: {email}");
+                            continue;
+                        }
+
+                        string name = azienda.Nome;       // Nome dell'azienda
+                        string address = azienda.Indirizzo; // Indirizzo dell'azienda
+
+                        PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
+
+                        SendEmail(senderEmail, senderPassword, email, subject, body,  attachPdf ? outputPdfPath : null);
                         Console.WriteLine($"\n[SUCCESSO] Email inviata con successo a: {email}");
                         emailInviate++;
+
                     }
                     catch (Exception ex)
                     {
@@ -137,6 +161,7 @@ namespace ExcelEmailSender
                         emailFallite++;
                     }
                 }
+
 
                 Console.WriteLine($"\n\tEmail inviate n: {emailInviate}");
                 Console.WriteLine($"\tEmail fallite n: {emailFallite}");
@@ -210,23 +235,95 @@ namespace ExcelEmailSender
 
             return emails;
         }
+        //------------------------------------------------------------------------------------------------------------------
+        public static List<Azienda> ReadAziendeFromExcel(string filePath)
+        {
+            List<Azienda> aziende = new List<Azienda>();
 
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                if (package.Workbook.Worksheets.Count == 0)
+                {
+                    Console.WriteLine("\nATTENZIONE!!! Il file Excel non contiene fogli di lavoro!");
+                    return aziende;
+                }
 
+                var worksheet = package.Workbook.Worksheets[0];
+
+                if (worksheet.Dimension == null)
+                {
+                    Console.WriteLine("\nATTENZIONE!!! Il foglio di lavoro è vuoto!");
+                    return aziende;
+                }
+
+                int rowCount = worksheet.Dimension.Rows;
+                int colCount = worksheet.Dimension.Columns;
+
+                int nomeColumnIndex = -1;
+                int indirizzoColumnIndex = -1;
+                int emailColumnIndex = -1;
+
+                // Identifica le colonne necessarie
+                for (int col = 1; col <= colCount; col++)
+                {
+                    string header = worksheet.Cells[1, col].Value?.ToString()?.Trim();
+                    if (!string.IsNullOrEmpty(header))
+                    {
+                        if (header.Equals("Nominativo", StringComparison.OrdinalIgnoreCase))
+                            nomeColumnIndex = col;
+                        else if (header.Equals("Indirizzo", StringComparison.OrdinalIgnoreCase))
+                            indirizzoColumnIndex = col;
+                        else if (header.Equals("Email", StringComparison.OrdinalIgnoreCase))
+                            emailColumnIndex = col;
+                    }
+                }
+
+                if (nomeColumnIndex == -1 || indirizzoColumnIndex == -1 || emailColumnIndex == -1)
+                {
+                    Console.WriteLine("\nATTENZIONE!!! Non tutte le colonne richieste ('Nome', 'Indirizzo', 'Email') sono presenti!");
+                    return aziende;
+                }
+
+                // Leggi i dati riga per riga
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    string nome = worksheet.Cells[row, nomeColumnIndex].Value?.ToString()?.Trim();
+                    string indirizzo = worksheet.Cells[row, indirizzoColumnIndex].Value?.ToString()?.Trim();
+                    string email = worksheet.Cells[row, emailColumnIndex].Value?.ToString()?.Trim();
+
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        aziende.Add(new Azienda
+                        {
+                            Id = Guid.NewGuid(),
+                            Nome = nome,
+                            Indirizzo = indirizzo,
+                            Email = email
+                        });
+                    }
+                }
+            }
+
+            return aziende;
+        }
         //------------------------------------------------------------------------------------------------------------------
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
-                            string subject, string body, SmtpClient smtpClient, string pdfPath = null)
+                            string subject, string body, string pdfPath = null)
         {
-            using (smtpClient)
+            using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
             {
-                smtpClient.EnableSsl = true;
-                smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
 
+                //mailhog
+                smtpClient.EnableSsl = false;
+                smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
                 using (MailMessage mailMessage = new MailMessage())
                 {
+
                     mailMessage.From = new MailAddress(senderEmail);
                     mailMessage.To.Add(recipientEmail);
                     mailMessage.Subject = subject;
                     mailMessage.Body = body;
+
 
                     if (!string.IsNullOrEmpty(pdfPath))
                     {
@@ -239,5 +336,10 @@ namespace ExcelEmailSender
             }
         }
         //-----------------------------------------------------------------------------------------------------------------------
+        public static List<string> GetEmails(List<Azienda> aziende)
+        {
+            return aziende.Select(a => a.Email).ToList();
+        }
+
     }
 }
