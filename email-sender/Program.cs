@@ -57,7 +57,7 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
                 string senderEmail = "claudio.lore001@gmail.com";
                 string senderPassword;
-                string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\prova.pdf";
+                string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
                 string pdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\finale__SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
 
                 Console.WriteLine("Excel Email Sender");
