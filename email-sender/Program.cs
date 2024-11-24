@@ -11,73 +11,144 @@ namespace ExcelEmailSender
     {
         static void Main(string[] args)
         {
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            while (true) 
+            { 
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+                string subject = string.Empty;
+                string body = string.Empty;
+                string senderEmail;
+                string senderPassword;
 
-            Console.WriteLine("Excel Email Sender");
-            Console.WriteLine("-----------------");
+                Console.WriteLine("Excel Email Sender");
+                Console.WriteLine("BENVENUTO");
+                Console.WriteLine("-----------------");
+                
+                //INSERIMENTO EXCEL CON EMAIL
+                Console.Write("\n--Inserisci il percorso del file Excel in cui ci sono le email a cui inviare: ");
+                string excelPath = Console.ReadLine().Trim('"');
 
-            Console.Write("\nInserisci il percorso del file Excel: ");
-            string excelPath = Console.ReadLine().Trim('"');
-
-            if (!File.Exists(excelPath))
-            {
-                Console.WriteLine("\nATTENZIONE!!!!! Il file Excel specificato non esiste ò il percorso è sbagliato!");
-                Console.ReadKey();
-                return;
-            }
-
-            Console.WriteLine($"\nLettura del file: {excelPath}\n");
-            List<string> emailAddresses = ReadEmailsFromExcel(excelPath);
-
-            Console.WriteLine($"\nTrovate {emailAddresses.Count} email da inviare.");
-
-            if (emailAddresses.Count == 0)
-            {
-                Console.WriteLine("\nATTENZIONE!!! Nessuna email trovata nel file Excel.");
-                Console.ReadKey();
-                return;
-            }
-
-            Console.Write("\nInserisci l'oggetto dell'email: ");
-            string subject = Console.ReadLine();
-
-            Console.Write("\nInserisci il corpo dell'email: ");
-            string body = Console.ReadLine();
-
-            Console.Write("\nVuoi allegare un PDF? (S/N): ");
-            bool attachPdf = Console.ReadLine().ToUpper() == "S";
-
-            string pdfPath = "";
-            if (attachPdf)
-            {
-                Console.Write("\nInserisci il percorso del file PDF: ");
-                pdfPath = Console.ReadLine().Trim('"');
-            }
-
-            // Configurazione email mittente
-            Console.Write("\nInserisci l'email del mittente: ");
-            string senderEmail = Console.ReadLine();
-            Console.Write("\nInserisci la password dell'email: ");
-            string senderPassword = Console.ReadLine();
-
-            Console.WriteLine("\nInizio invio email...\n");
-
-            // Invio email
-            foreach (string email in emailAddresses)
-            {
-                try
+                if (!File.Exists(excelPath))
                 {
-                    SendEmail(senderEmail, senderPassword, email, subject, body, attachPdf ? pdfPath : null);
-                    Console.WriteLine($"\n[SUCCESSO] Email inviata con successo a: {email}");
+                    Console.WriteLine("\nATTENZIONE!!!!! Il file Excel specificato non esiste ò il percorso è sbagliato!");
+                    Console.WriteLine("Premi qualunque tasto per riprovare");
+                    Console.ReadKey();
+                    continue;
                 }
-                catch (Exception ex)
+
+                //LETTURA FILE E NUMERO EMAIL
+                Console.WriteLine($"\nLettura del file: {excelPath}\n");
+                List<string> emailAddresses = ReadEmailsFromExcel(excelPath);
+                
+                Console.WriteLine($"\nTrovate {emailAddresses.Count} email da inviare.");
+                if (emailAddresses.Count == 0)
                 {
-                    Console.WriteLine($"\n[ERRORE] Errore nell'invio dell'email a {email}: {ex.Message}");
+                    Console.WriteLine("\nATTENZIONE!!! Nessuna email trovata nel file Excel.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                //INSERIMENTO OGGETTO EMAIL
+                while(true)
+                {
+                    Console.Write("\n--Inserisci l'oggetto dell'email: ");
+                    subject = Console.ReadLine();
+                    if(string.IsNullOrEmpty(subject))
+                    {
+                        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
+                        Console.WriteLine("premi un tasto qualunque per riprovare");
+                        Console.ReadKey();
+                        continue;
+                    }
+                    break;                   
+                }
+
+                //INSERIMENTO CORPO EMAIL
+                while (true)
+                {
+                    Console.Write("\n--Inserisci il corpo dell'email: ");
+                    body = Console.ReadLine();
+                    if (string.IsNullOrEmpty(body))
+                    {
+                        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
+                        Console.WriteLine("premi un tasto qualunque per riprovare");
+                        Console.ReadKey();
+                        continue;
+                    }
+                    break;
+                }
+
+                //ALLEGARE UN PDF
+                Console.Write("\nVuoi allegare un PDF? (S/N): ");
+                bool attachPdf = Console.ReadLine().ToUpper() == "S";
+
+                string pdfPath = "";
+                if (attachPdf)
+                {
+                    while (true) 
+                    { 
+                        Console.Write("\nInserisci il percorso del file PDF: ");
+                        pdfPath = Console.ReadLine().Trim('"');
+                        if (!File.Exists(pdfPath))
+                        {
+                            Console.WriteLine("\nATTENZIONE!!!!! Il file pdf specificato non esiste ò il percorso è sbagliato!");
+                            Console.WriteLine("Premi qualunque tasto per riprovare");
+                            Console.ReadKey();
+                            continue;
+                        }
+                        break ;
+                    }
+                }
+                //VALIDAZIONE CREDENZIALI
+                while (true)
+                {
+                    // Configurazione email mittente
+                    Console.Write("\n--Inserisci l'email del mittente: ");
+                    senderEmail = Console.ReadLine();
+                    Console.Write("\nInserisci la password dell'email: ");
+                    senderPassword = Console.ReadLine();
+
+
+                    Console.WriteLine("\nInizio invio email...\n");
+                    if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPassword)) 
+                    {
+                        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
+                        Console.WriteLine("premi un tasto qualunque per riprovare");
+                        Console.ReadKey();
+                        continue;
+                    }
+                    break;
+                }
+
+                int emailInviate = 0;
+                int emailFallite = 0;
+                //INVIO EMAIL
+                foreach (string email in emailAddresses)
+                {
+                    try
+                    {
+                        SendEmail(senderEmail, senderPassword, email, subject, body, smtpClient, attachPdf ? pdfPath : null);
+                        Console.WriteLine($"\n[SUCCESSO] Email inviata con successo a: {email}");
+                        emailInviate++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"\n[ERRORE] Errore nell'invio dell'email a {email}: {ex.Message}");
+                        emailFallite++;
+                    }
+                }
+
+                Console.WriteLine($"\n\tEmail inviate n: {emailInviate}");
+                Console.WriteLine($"\tEmail fallite n: {emailFallite}");
+                Console.WriteLine("\nProcesso completato. Premi un 'E' per uscire.");
+                Console.WriteLine("Oppure un altro tasto per ripetere");
+                string risposta = Console.ReadLine().ToLower();
+                if (risposta == "e")
+                {
+                    break ;
                 }
             }
 
-            Console.WriteLine("\nProcesso completato. Premi un tasto per uscire.");
-            Console.ReadKey();
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -143,9 +214,9 @@ namespace ExcelEmailSender
 
         //------------------------------------------------------------------------------------------------------------------
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
-                            string subject, string body, string pdfPath = null)
+                            string subject, string body, SmtpClient smtpClient, string pdfPath = null)
         {
-            using (SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
+            using (smtpClient)
             {
                 smtpClient.EnableSsl = true;
                 smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
@@ -167,5 +238,6 @@ namespace ExcelEmailSender
                 }
             }
         }
+        //-----------------------------------------------------------------------------------------------------------------------
     }
 }
