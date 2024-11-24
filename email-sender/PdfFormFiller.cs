@@ -29,13 +29,13 @@ namespace email_sender
 
                 // Compila i campi
                 if (fields.ContainsKey("nome"))
-                    fields["nome"].SetValue(name);
+                    fields["nome"].SetValue(name.ToUpper());
 
                 if (fields.ContainsKey("indirizzo"))
-                    fields["indirizzo"].SetValue(address);
+                    fields["indirizzo"].SetValue(address.ToLower());
 
                 if (fields.ContainsKey("email"))
-                    fields["email"].SetValue(email);
+                    fields["email"].SetValue(email.ToLower());
 
                 // Rendi i campi non modificabili (opzionale)
                 form.FlattenFields();

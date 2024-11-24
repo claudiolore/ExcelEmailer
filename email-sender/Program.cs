@@ -17,12 +17,12 @@ namespace ExcelEmailSender
             { 
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                 
-                string subject = string.Empty;
-                string body = string.Empty;
-                string senderEmail;
+                string subject = "SUPPORTO INFORMATICO PER CONTABILIZZAZIONE CALORE E MONITORAGGIO ENERGETICO";
+                string body = "È noto che i sistemi di contabilizzazione del calore per gli impianti di riscaldamento centralizzato, resi obbligatori a partire dal 2014,\r\nattualmente devono anche:\r\n essere leggibili da remoto,\r\n prevedere la fornitura agli utenti finali dei dati di consumo almeno una volta al mese.\r\n(ai sensi del D.lgs 102/2014, per maggiori dettagli si veda in allegato)\r\nRispondere a questi nuovi obblighi può essere oneroso. Non adeguare la contabilizzazione ai predetti requisiti può far perdere clienti.\r\nLa soluzione PLANERGY® che vi presentiamo è l'opportunità di innovare, senza investimenti, il servizio di contabilizzazione da voi\r\nerogato ai condomìni vostri clienti.\r\nCon la nostra soluzione, la vostra azienda potrà:\r\n fidelizzare i condomìni clienti,\r\n adeguare il servizio di contabilizzazione offerto, rispondendo agli obblighi di accesso da remoto e di fornitura dati minima\r\n(almeno una volta al mese),\r\n fornire un servizio di contabilizzazione che include un innovativo monitoraggio via web.\r\nIn allegato trova una breve descrizione dell'applicativo web PLANERGY® che la sua azienda potrà offrire ai suoi clienti.\r\nLa sua attivazione potrà avvenire con il nostro supporto informatico, basato su una Convenzione che prevede, da parte nostra:\r\n configurazione software degli apparati di raccolta e trasmissione dati,\r\n fornitura degli accessi per gli utenti finali all'applicativo web,\r\n elaborazione dati per i piani di riparto annuali (il vostro onere si ridurrà alla sola impaginazione finale personalizzata, se\r\nnecessaria, ed alla consegna all'amministratore del condominio),\r\n patto di non concorrenza (ci impegniamo a non effettuare alcuna azione commerciale rivolta ai suoi clienti in concorrenza\r\ncon la vostra azienda).\r\nSe interessato, risponda per favore a questa mail, fornendo il nominativo da contattare per un incontro di approfondimento, anche\r\nper verificare insieme quali apparati di raccolta e trasmissione dati (attualmente presenti ovvero che potreste proporre ai condomìni\r\ninteressati) siano adatti all'attivazione del nuovo servizio.\r\nIn attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
+                string senderEmail = "claudio.lore001@gmail.com";
                 string senderPassword;
                 string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\prova.pdf";
-
+                string pdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\finale__SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
 
                 Console.WriteLine("Excel Email Sender");
                 Console.WriteLine("BENVENUTO");
@@ -54,63 +54,63 @@ namespace ExcelEmailSender
                 }
 
                 //INSERIMENTO OGGETTO EMAIL
-                while(true)
-                {
-                    Console.Write("\n--Inserisci l'oggetto dell'email: ");
-                    subject = Console.ReadLine();
-                    if(string.IsNullOrEmpty(subject))
-                    {
-                        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
-                        Console.WriteLine("premi un tasto qualunque per riprovare");
-                        Console.ReadKey();
-                        continue;
-                    }
-                    break;                   
-                }
+                //while(true)
+                //{
+                //    Console.Write("\n--Inserisci l'oggetto dell'email: ");
+                //    subject = Console.ReadLine();
+                //    if(string.IsNullOrEmpty(subject))
+                //    {
+                //        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
+                //        Console.WriteLine("premi un tasto qualunque per riprovare");
+                //        Console.ReadKey();
+                //        continue;
+                //    }
+                //    break;                   
+                //}
 
-                //INSERIMENTO CORPO EMAIL
-                while (true)
-                {
-                    Console.Write("\n--Inserisci il corpo dell'email: ");
-                    body = Console.ReadLine();
-                    if (string.IsNullOrEmpty(body))
-                    {
-                        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
-                        Console.WriteLine("premi un tasto qualunque per riprovare");
-                        Console.ReadKey();
-                        continue;
-                    }
-                    break;
-                }
+                ////INSERIMENTO CORPO EMAIL
+                //while (true)
+                //{
+                //    Console.Write("\n--Inserisci il corpo dell'email: ");
+                //    body = Console.ReadLine();
+                //    if (string.IsNullOrEmpty(body))
+                //    {
+                //        Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
+                //        Console.WriteLine("premi un tasto qualunque per riprovare");
+                //        Console.ReadKey();
+                //        continue;
+                //    }
+                //    break;
+                //}
 
                 //ALLEGARE UN PDF
                 Console.Write("\nVuoi allegare un PDF? (S/N): ");
                 bool attachPdf = Console.ReadLine().ToUpper() == "S";
 
-                string pdfPath = "";
-                if (attachPdf)
-                {
-                    while (true) 
-                    { 
-                        Console.Write("\nInserisci il percorso del file PDF: ");
-                        pdfPath = Console.ReadLine().Trim('"');
-                        if (!File.Exists(pdfPath))
-                        {
-                            Console.WriteLine("\nATTENZIONE!!!!! Il file pdf specificato non esiste ò il percorso è sbagliato!");
-                            Console.WriteLine("Premi qualunque tasto per riprovare");
-                            Console.ReadKey();
-                            continue;
-                        }
-                        break ;
-                    }
-                }
+                
+                //if (attachPdf)
+                //{
+                //    while (true) 
+                //    { 
+                //        Console.Write("\nInserisci il percorso del file PDF: ");
+                //        pdfPath = Console.ReadLine().Trim('"');
+                //        if (!File.Exists(pdfPath))
+                //        {
+                //            Console.WriteLine("\nATTENZIONE!!!!! Il file pdf specificato non esiste ò il percorso è sbagliato!");
+                //            Console.WriteLine("Premi qualunque tasto per riprovare");
+                //            Console.ReadKey();
+                //            continue;
+                //        }
+                //        break ;
+                //    }
+                //}
 
                 //VALIDAZIONE CREDENZIALI
                 while (true)
                 {
                     // Configurazione email mittente
-                    Console.Write("\n--Inserisci l'email del mittente: ");
-                    senderEmail = Console.ReadLine();
+                    //Console.Write("\n--Inserisci l'email del mittente: ");
+                    //senderEmail = Console.ReadLine();
                     Console.Write("\nInserisci la password dell'email: ");
                     senderPassword = Console.ReadLine();
 
@@ -309,12 +309,13 @@ namespace ExcelEmailSender
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
                             string subject, string body, string pdfPath = null)
         {
-            //using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
-            using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
+            using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
+            //using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
             {
+                smtpClient.EnableSsl = true;
 
                 //mailhog
-                smtpClient.EnableSsl = false;
+                //smtpClient.EnableSsl = false;
                 smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
                 using (MailMessage mailMessage = new MailMessage())
                 {
