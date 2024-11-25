@@ -5,7 +5,11 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Collections.Generic;
 using email_sender;
-using System.Net;
+using MimeKit;
+using MimeKit.Text;
+using MailKit.Security;
+using MailKit.Net.Smtp;
+using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace ExcelEmailSender
 {
@@ -16,9 +20,8 @@ namespace ExcelEmailSender
             while (true) 
             { 
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                
+
                 string subject = "SUPPORTO INFORMATICO PER CONTABILIZZAZIONE CALORE E MONITORAGGIO ENERGETICO";
-                //string body = "È noto che i sistemi di contabilizzazione del calore per gli impianti di riscaldamento centralizzato, resi obbligatori a partire dal 2014,\r\nattualmente devono anche:\r\n essere leggibili da remoto,\r\n prevedere la fornitura agli utenti finali dei dati di consumo almeno una volta al mese.\r\n(ai sensi del D.lgs 102/2014, per maggiori dettagli si veda in allegato)\r\nRispondere a questi nuovi obblighi può essere oneroso. Non adeguare la contabilizzazione ai predetti requisiti può far perdere clienti.\r\nLa soluzione PLANERGY® che vi presentiamo è l'opportunità di innovare, senza investimenti, il servizio di contabilizzazione da voi\r\nerogato ai condomìni vostri clienti.\r\nCon la nostra soluzione, la vostra azienda potrà:\r\n fidelizzare i condomìni clienti,\r\n adeguare il servizio di contabilizzazione offerto, rispondendo agli obblighi di accesso da remoto e di fornitura dati minima\r\n(almeno una volta al mese),\r\n fornire un servizio di contabilizzazione che include un innovativo monitoraggio via web.\r\nIn allegato trova una breve descrizione dell'applicativo web PLANERGY® che la sua azienda potrà offrire ai suoi clienti.\r\nLa sua attivazione potrà avvenire con il nostro supporto informatico, basato su una Convenzione che prevede, da parte nostra:\r\n configurazione software degli apparati di raccolta e trasmissione dati,\r\n fornitura degli accessi per gli utenti finali all'applicativo web,\r\n elaborazione dati per i piani di riparto annuali (il vostro onere si ridurrà alla sola impaginazione finale personalizzata, se\r\nnecessaria, ed alla consegna all'amministratore del condominio),\r\n patto di non concorrenza (ci impegniamo a non effettuare alcuna azione commerciale rivolta ai suoi clienti in concorrenza\r\ncon la vostra azienda).\r\nSe interessato, risponda per favore a questa mail, fornendo il nominativo da contattare per un incontro di approfondimento, anche\r\nper verificare insieme quali apparati di raccolta e trasmissione dati (attualmente presenti ovvero che potreste proporre ai condomìni\r\ninteressati) siano adatti all'attivazione del nuovo servizio.\r\nIn attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                 string body = @"È noto che i sistemi di contabilizzazione del calore per gli impianti di riscaldamento centralizzato, resi obbligatori a partire dal 2014, 
 attualmente devono anche:
 
@@ -55,8 +58,9 @@ interessati) siano adatti all'attivazione del nuovo servizio.
 In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
 
-                string senderEmail = "claudio.lore001@gmail.com";
-                string senderPassword;
+                string senderEmail = "contabilizzazione.calore@planergy.it";
+                //string senderEmail = "claudio.lore001@gmail.com";
+                string senderPassword = "Contabilizza.001";
                 string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
                 string pdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\finale__SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
 
@@ -147,8 +151,8 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                     // Configurazione email mittente
                     //Console.Write("\n--Inserisci l'email del mittente: ");
                     //senderEmail = Console.ReadLine();
-                    Console.Write("\nInserisci la password dell'email: ");
-                    senderPassword = Console.ReadLine();
+                    //Console.Write("\nInserisci la password dell'email: ");
+                    //senderPassword = Console.ReadLine();
 
 
                     Console.WriteLine("\nInizio invio email...\n");
@@ -189,6 +193,10 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                         Console.WriteLine($"\n[SUCCESSO] Email inviata con successo a: {email}");
                         emailInviate++;
 
+                    }
+                    catch (SmtpException ex)
+                    {
+                        Console.WriteLine($"SMTP Error: {ex.StatusCode} - {ex.Message}");
                     }
                     catch (Exception ex)
                     {
@@ -342,37 +350,92 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
             return aziende;
         }
         //------------------------------------------------------------------------------------------------------------------
+        //static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
+        //                    string subject, string body, string pdfPath = null)
+        //{
+        //    //using (SmtpClient smtpClient = new SmtpClient("smtp.planergy.it", 465))
+        //    using (SmtpClient smtpClient = new SmtpClient("smtps.aruba.it", 465))
+        //    //using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
+        //    //using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
+        //    {
+        //        //mailhog
+        //        //smtpClient.EnableSsl = false;
+        //        smtpClient.EnableSsl = true;
+        //        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+        //        smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
+        //        using (MailMessage mailMessage = new MailMessage())
+        //        {
+
+        //            mailMessage.From = new MailAddress(senderEmail);
+        //            mailMessage.To.Add(recipientEmail);
+        //            mailMessage.Subject = subject;
+        //            mailMessage.Body = body;
+
+
+        //            if (!string.IsNullOrEmpty(pdfPath))
+        //            {
+        //                Attachment attachment = new Attachment(pdfPath, MediaTypeNames.Application.Pdf);
+        //                mailMessage.Attachments.Add(attachment);
+        //            }
+
+        //            smtpClient.Send(mailMessage);
+        //        }
+        //    }
+        //}
+        //-----------------------------------------------------------------------------------------------------------------------
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
                             string subject, string body, string pdfPath = null)
         {
-            using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
-            //using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
+            try
             {
-                smtpClient.EnableSsl = true;
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("Planergy", senderEmail));
+                message.To.Add(new MailboxAddress("", recipientEmail));
+                message.Subject = subject;
 
-                //mailhog
-                //smtpClient.EnableSsl = false;
-                smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
-                using (MailMessage mailMessage = new MailMessage())
+                var builder = new BodyBuilder();
+                builder.TextBody = body;
+
+                // Aggiungi PDF se specificato
+                if (!string.IsNullOrEmpty(pdfPath))
                 {
+                    builder.Attachments.Add(pdfPath);
+                }
 
-                    mailMessage.From = new MailAddress(senderEmail);
-                    mailMessage.To.Add(recipientEmail);
-                    mailMessage.Subject = subject;
-                    mailMessage.Body = body;
+                message.Body = builder.ToMessageBody();
 
+                using (var client = new SmtpClient())
+                {
+                    // Disabilita la verifica del certificato SSL (solo per debug)
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-                    if (!string.IsNullOrEmpty(pdfPath))
-                    {
-                        Attachment attachment = new Attachment(pdfPath, MediaTypeNames.Application.Pdf);
-                        mailMessage.Attachments.Add(attachment);
-                    }
+                    // Connessione con timeout esteso
+                    client.Connect("smtps.aruba.it", 465, SecureSocketOptions.SslOnConnect);
 
-                    smtpClient.Send(mailMessage);
+                    // Autenticazione
+                    client.Authenticate(senderEmail, senderPassword);
+
+                    // Timeout più lungo per l'invio
+                    client.Timeout = 30000; // 30 secondi
+
+                    // Invio
+                    client.Send(message);
+                    client.Disconnect(true);
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n[ERRORE DETTAGLIATO] Invio email fallito:");
+                Console.WriteLine($"Messaggio: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
         }
-        //-----------------------------------------------------------------------------------------------------------------------
         public static List<string> GetEmails(List<Azienda> aziende)
         {
             return aziende.Select(a => a.Email).ToList();
