@@ -58,9 +58,9 @@ interessati) siano adatti all'attivazione del nuovo servizio.
 In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
 
-                string senderEmail = "contabilizzazione.calore@planergy.it";
+                string senderEmail = string.Empty;
                 //string senderEmail = "claudio.lore001@gmail.com";
-                string senderPassword = "Contabilizza.001";
+                string senderPassword = string.Empty;
                 string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
                 string pdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\finale__SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
 
@@ -148,11 +148,11 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                 //VALIDAZIONE CREDENZIALI
                 while (true)
                 {
-                    // Configurazione email mittente
-                    //Console.Write("\n--Inserisci l'email del mittente: ");
-                    //senderEmail = Console.ReadLine();
-                    //Console.Write("\nInserisci la password dell'email: ");
-                    //senderPassword = Console.ReadLine();
+                    //Configurazione email mittente
+                    Console.Write("\n--Inserisci l'email del mittente: ");
+                    senderEmail = Console.ReadLine();
+                    Console.Write("\nInserisci la password dell'email: ");
+                    senderPassword = Console.ReadLine();
 
 
                     Console.WriteLine("\nInizio invio email...\n");
