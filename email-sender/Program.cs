@@ -56,21 +56,29 @@ per verificare insieme quali apparati di raccolta e trasmissione dati (attualmen
 interessati) siano adatti all'attivazione del nuovo servizio.
 
 In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
-
-
                 string senderEmail = string.Empty;
-                //string senderEmail = "claudio.lore001@gmail.com";
                 string senderPassword = string.Empty;
+                string excelPath = string.Empty;
                 string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
                 string pdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\finale__SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
-
+                int emailInviate = 0;
+                int emailFallite = 0;
+                string risposta;
+                Console.WriteLine("-----------------");
                 Console.WriteLine("Excel Email Sender");
                 Console.WriteLine("BENVENUTO");
                 Console.WriteLine("-----------------");
                 
-                //INSERIMENTO EXCEL CON EMAIL
                 Console.Write("\n--Inserisci il percorso del file Excel in cui ci sono le email a cui inviare: ");
-                string excelPath = Console.ReadLine().Trim('"');
+                excelPath = Console.ReadLine().Trim('"');
+
+                if (string.IsNullOrEmpty(excelPath)) 
+                {
+                    Console.WriteLine("\nATTENZIONE!!!!! devi inserire almeno un carattere!");
+                    Console.WriteLine("Premi qualunque tasto per riprovare");
+                    Console.ReadKey();
+                    continue;
+                }
 
                 if (!File.Exists(excelPath))
                 {
@@ -79,6 +87,8 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                     Console.ReadKey();
                     continue;
                 }
+
+                //CARICAMENTO INFORMAZIONI AZIENDE
                 List<Azienda> listaAziende = ReadAziendeFromExcel(excelPath);
 
                 //LETTURA FILE E NUMERO EMAIL
@@ -166,8 +176,24 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                     break;
                 }
 
-                int emailInviate = 0;
-                int emailFallite = 0;
+                //RESOCONTO
+                Console.WriteLine($"\n\tRESOCONTO");
+                Console.WriteLine($"Email mittente: {senderEmail}");
+                Console.WriteLine($"Path excel: {excelPath}");
+                Console.WriteLine($"Path pdf: {pdfPath}");
+                Console.WriteLine($"Oggetto email: {subject}");
+                string shortBody = body.Length > 200 ? body.Substring(0, 200) : body;
+                Console.WriteLine($"\tBody: {shortBody}...");
+                Console.WriteLine("Vuoi continuare? (s/n)");
+
+                risposta = string.Empty;
+                risposta = Console.ReadLine().ToLower();
+
+                if (!risposta.Equals("s"))
+                {
+                    break;
+                }
+
 
                 //INVIO EMAIL
                 foreach (string email in emailAddresses)
@@ -184,8 +210,8 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                             continue;
                         }
 
-                        string name = azienda.Nome;       // Nome dell'azienda
-                        string address = azienda.Indirizzo; // Indirizzo dell'azienda
+                        string name = azienda.Nome;   
+                        string address = azienda.Indirizzo;
 
                         PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
 
@@ -210,7 +236,7 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                 Console.WriteLine($"\tEmail fallite n: {emailFallite}");
                 Console.WriteLine("\nProcesso completato. Premi un 'E' per uscire.");
                 Console.WriteLine("Oppure un altro tasto per ripetere");
-                string risposta = Console.ReadLine().ToLower();
+                risposta = Console.ReadLine().ToLower();
                 if (risposta == "e")
                 {
                     break ;
@@ -349,12 +375,10 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
             return aziende;
         }
-        //------------------------------------------------------------------------------------------------------------------
+        //---------------------------------------gmail mail hog---------------------------------------------------------------------------
         //static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
         //                    string subject, string body, string pdfPath = null)
         //{
-        //    //using (SmtpClient smtpClient = new SmtpClient("smtp.planergy.it", 465))
-        //    using (SmtpClient smtpClient = new SmtpClient("smtps.aruba.it", 465))
         //    //using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
         //    //using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
         //    {
@@ -383,7 +407,7 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
         //        }
         //    }
         //}
-        //-----------------------------------------------------------------------------------------------------------------------
+        //---------------------------------------------aruba--------------------------------------------------------------------------
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
                             string subject, string body, string pdfPath = null)
         {
