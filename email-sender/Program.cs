@@ -17,8 +17,8 @@ namespace ExcelEmailSender
     {
         static void Main(string[] args)
         {
-            while (true) 
-            { 
+            while (true)
+            {
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
                 string subject = "SUPPORTO INFORMATICO PER CONTABILIZZAZIONE CALORE E MONITORAGGIO ENERGETICO";
@@ -68,11 +68,11 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                 Console.WriteLine("Excel Email Sender");
                 Console.WriteLine("BENVENUTO");
                 Console.WriteLine("-----------------");
-                
+
                 Console.Write("\n--Inserisci il percorso del file Excel in cui ci sono le email a cui inviare: ");
                 excelPath = Console.ReadLine().Trim('"');
 
-                if (string.IsNullOrEmpty(excelPath)) 
+                if (string.IsNullOrEmpty(excelPath))
                 {
                     Console.WriteLine("\nATTENZIONE!!!!! devi inserire almeno un carattere!");
                     Console.WriteLine("Premi qualunque tasto per riprovare");
@@ -94,7 +94,7 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                 //LETTURA FILE E NUMERO EMAIL
                 Console.WriteLine($"\nLettura del file: {excelPath}\n");
                 List<string> emailAddresses = GetEmails(listaAziende);
-                
+
                 Console.WriteLine($"\nTrovate {emailAddresses.Count} email da inviare.");
                 if (emailAddresses.Count == 0)
                 {
@@ -137,7 +137,7 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                 Console.Write("\nVuoi allegare un PDF? (S/N): ");
                 bool attachPdf = Console.ReadLine().ToUpper() == "S";
 
-                
+
                 //if (attachPdf)
                 //{
                 //    while (true) 
@@ -166,7 +166,7 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
 
                     Console.WriteLine("\nInizio invio email...\n");
-                    if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPassword)) 
+                    if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPassword))
                     {
                         Console.WriteLine("\nAttenzione!!! inserire almeno un carattere");
                         Console.WriteLine("premi un tasto qualunque per riprovare");
@@ -176,16 +176,10 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
                     break;
                 }
 
-                //RESOCONTO
-                Console.WriteLine($"\n\tRESOCONTO");
-                Console.WriteLine($"Email mittente: {senderEmail}");
-                Console.WriteLine($"Path excel: {excelPath}");
-                Console.WriteLine($"Path pdf: {pdfPath}");
-                Console.WriteLine($"Oggetto email: {subject}");
-                string shortBody = body.Length > 200 ? body.Substring(0, 200) : body;
-                Console.WriteLine($"\tBody: {shortBody}...");
-                Console.WriteLine("Vuoi continuare? (s/n)");
-
+                PrintResoconto(senderEmail, excelPath, pdfPath, subject, body);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\nVuoi continuare? (s/n)");
+                Console.ResetColor();
                 risposta = string.Empty;
                 risposta = Console.ReadLine().ToLower();
 
@@ -206,40 +200,44 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
                         if (azienda == null)
                         {
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine($"\n[AVVISO] Nessuna azienda trovata per l'email: {email}");
+                            Console.ResetColor();
                             continue;
                         }
 
-                        string name = azienda.Nome;   
+                        string name = azienda.Nome;
                         string address = azienda.Indirizzo;
 
                         PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
 
-                        SendEmail(senderEmail, senderPassword, email, subject, body,  attachPdf ? outputPdfPath : null);
+                        SendEmail(senderEmail, senderPassword, email, subject, body, attachPdf ? outputPdfPath : null);
                         Console.WriteLine($"\n[SUCCESSO] Email inviata con successo a: {email}");
                         emailInviate++;
 
                     }
                     catch (SmtpException ex)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"SMTP Error: {ex.StatusCode} - {ex.Message}");
+                        Console.ResetColor();
+                        emailFallite++;
                     }
                     catch (Exception ex)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"\n[ERRORE] Errore nell'invio dell'email a {email}: {ex.Message}");
+                        Console.ResetColor();
                         emailFallite++;
                     }
                 }
 
-
-                Console.WriteLine($"\n\tEmail inviate n: {emailInviate}");
-                Console.WriteLine($"\tEmail fallite n: {emailFallite}");
-                Console.WriteLine("\nProcesso completato. Premi un 'E' per uscire.");
-                Console.WriteLine("Oppure un altro tasto per ripetere");
+                PrintFinalReport(emailInviate, emailFallite);
                 risposta = Console.ReadLine().ToLower();
+
                 if (risposta == "e")
                 {
-                    break ;
+                    break;
                 }
             }
 
@@ -304,7 +302,8 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
             return emails;
         }
-        //------------------------------------------------------------------------------------------------------------------
+
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
         public static List<Azienda> ReadAziendeFromExcel(string filePath)
         {
             List<Azienda> aziende = new List<Azienda>();
@@ -375,7 +374,124 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
             return aziende;
         }
-        //---------------------------------------gmail mail hog---------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
+        static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
+                            string subject, string body, string pdfPath = null)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("Planergy", senderEmail));
+                message.To.Add(new MailboxAddress("", recipientEmail));
+                message.Subject = subject;
+
+                var builder = new BodyBuilder();
+                builder.TextBody = body;
+
+                // Aggiungi PDF se specificato
+                if (!string.IsNullOrEmpty(pdfPath))
+                {
+                    builder.Attachments.Add(pdfPath);
+                }
+
+                message.Body = builder.ToMessageBody();
+
+                using (var client = new SmtpClient())
+                {
+                    // Disabilita la verifica del certificato SSL (solo per debug)
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+
+                    // Connessione con timeout esteso
+                    //client.Connect("smtps.aruba.it", 465, SecureSocketOptions.SslOnConnect);
+                    client.Connect("localhost", 1025);
+
+                    // Autenticazione
+                    client.Authenticate(senderEmail, senderPassword);
+
+                    // Timeout più lungo per l'invio
+                    client.Timeout = 20000; // 30 secondi
+
+                    // Invio
+                    client.Send(message);
+                    client.Disconnect(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n[ERRORE DETTAGLIATO] Invio email fallito:");
+                Console.WriteLine($"Messaggio: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
+        }
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
+        public static List<string> GetEmails(List<Azienda> aziende)
+        {
+            return aziende.Select(a => a.Email).ToList();
+        }
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
+        public static void PrintResoconto(string senderEmail, string excelPath, string pdfPath, string subject, string body)
+        {
+            // RESOCONTO
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("\n\t===== RESOCONTO =====");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Email mittente: ");
+            Console.ResetColor();
+            Console.WriteLine(senderEmail);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Path Excel: ");
+            Console.ResetColor();
+            Console.WriteLine(excelPath);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Path PDF: ");
+            Console.ResetColor();
+            Console.WriteLine(pdfPath);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Oggetto email: ");
+            Console.ResetColor();
+            Console.WriteLine(subject);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Body: ");
+            Console.ResetColor();
+            string shortBody = body.Length > 200 ? body.Substring(0, 200).TrimEnd() : body.TrimEnd();
+            Console.WriteLine($"{shortBody}...");
+        }
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
+        public static void PrintFinalReport(int emailInviate, int emailFallite)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("\n\t===== REPORT FINALE =====");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\nEmail inviate {emailInviate}");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\nEmail fallite {emailFallite}");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nProcesso completato.");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Premi 'E' per uscire.");
+            Console.WriteLine("Oppure un altro tasto per ripetere.");
+            Console.ResetColor();
+        }
+
         //static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
         //                    string subject, string body, string pdfPath = null)
         //{
@@ -407,63 +523,6 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
         //        }
         //    }
         //}
-        //---------------------------------------------aruba--------------------------------------------------------------------------
-        static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
-                            string subject, string body, string pdfPath = null)
-        {
-            try
-            {
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Planergy", senderEmail));
-                message.To.Add(new MailboxAddress("", recipientEmail));
-                message.Subject = subject;
-
-                var builder = new BodyBuilder();
-                builder.TextBody = body;
-
-                // Aggiungi PDF se specificato
-                if (!string.IsNullOrEmpty(pdfPath))
-                {
-                    builder.Attachments.Add(pdfPath);
-                }
-
-                message.Body = builder.ToMessageBody();
-
-                using (var client = new SmtpClient())
-                {
-                    // Disabilita la verifica del certificato SSL (solo per debug)
-                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-
-                    // Connessione con timeout esteso
-                    client.Connect("smtps.aruba.it", 465, SecureSocketOptions.SslOnConnect);
-
-                    // Autenticazione
-                    client.Authenticate(senderEmail, senderPassword);
-
-                    // Timeout più lungo per l'invio
-                    client.Timeout = 30000; // 30 secondi
-
-                    // Invio
-                    client.Send(message);
-                    client.Disconnect(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"\n[ERRORE DETTAGLIATO] Invio email fallito:");
-                Console.WriteLine($"Messaggio: {ex.Message}");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-                }
-                throw;
-            }
-        }
-        public static List<string> GetEmails(List<Azienda> aziende)
-        {
-            return aziende.Select(a => a.Email).ToList();
-        }
-
+        //-----------------------------------------------------------------------------------------------------------------------
     }
 }
