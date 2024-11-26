@@ -21,45 +21,13 @@ namespace ExcelEmailSender
             {
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
-                string subject = "SUPPORTO INFORMATICO PER CONTABILIZZAZIONE CALORE E MONITORAGGIO ENERGETICO";
-                string body = @"È noto che i sistemi di contabilizzazione del calore per gli impianti di riscaldamento centralizzato, resi obbligatori a partire dal 2014, 
-attualmente devono anche:
-
-• essere leggibili da remoto,
-• prevedere la fornitura agli utenti finali dei dati di consumo almeno una volta al mese.
-
-(ai sensi del D.lgs 102/2014, per maggiori dettagli si veda in allegato)
-
-Rispondere a questi nuovi obblighi può essere oneroso. Non adeguare la contabilizzazione ai predetti requisiti può far perdere clienti.
-
-La soluzione PLANERGY® che vi presentiamo è l'opportunità di innovare, senza investimenti, il servizio di contabilizzazione da voi 
-erogato ai condomìni vostri clienti.
-
-Con la nostra soluzione, la vostra azienda potrà:
-• fidelizzare i condomìni clienti,
-• adeguare il servizio di contabilizzazione offerto, rispondendo agli obblighi di accesso da remoto e di fornitura dati minima 
-  (almeno una volta al mese),
-• fornire un servizio di contabilizzazione che include un innovativo monitoraggio via web.
-
-In allegato trova una breve descrizione dell'applicativo web PLANERGY® che la sua azienda potrà offrire ai suoi clienti.
-
-La sua attivazione potrà avvenire con il nostro supporto informatico, basato su una Convenzione che prevede, da parte nostra:
-• configurazione software degli apparati di raccolta e trasmissione dati,
-• fornitura degli accessi per gli utenti finali all'applicativo web,
-• elaborazione dati per i piani di riparto annuali (il vostro onere si ridurrà alla sola impaginazione finale personalizzata, se
-  necessaria, ed alla consegna all'amministratore del condominio),
-• patto di non concorrenza (ci impegniamo a non effettuare alcuna azione commerciale rivolta ai suoi clienti in concorrenza
-  con la vostra azienda).
-
-Se interessato, risponda per favore a questa mail, fornendo il nominativo da contattare per un incontro di approfondimento, anche
-per verificare insieme quali apparati di raccolta e trasmissione dati (attualmente presenti ovvero che potreste proporre ai condomìni
-interessati) siano adatti all'attivazione del nuovo servizio.
-
-In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
+               
+                string subject = string.Empty;
+                string body = string.Empty;
                 string senderEmail = string.Empty;
                 string senderPassword = string.Empty;
                 string excelPath = string.Empty;
-                string outputPdfPath = string.Empty;
+                string outputPdfPath = "C:\\Users\\claud\\OneDrive\\Desktop\\planergy utili\\appoggio\\SUPPORTO INFORMATICO PLANERGY CONTABILIZZAZIONE.pdf";
                 string pdfPath = string.Empty;
                 int emailInviate = 0;
                 int emailFallite = 0;
@@ -452,7 +420,8 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
 
                     // Connessione con timeout esteso
                     //client.Connect("smtps.aruba.it", 465, SecureSocketOptions.SslOnConnect);
-                    client.Connect("localhost", 1025);
+                    client.Connect("smtp.gmail.it", 587, SecureSocketOptions.SslOnConnect);
+                    //client.Connect("localhost", 1025);
 
                     // Autenticazione
                     client.Authenticate(senderEmail, senderPassword);
@@ -541,37 +510,5 @@ In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
             Console.ResetColor();
         }
 
-        //static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
-        //                    string subject, string body, string pdfPath = null)
-        //{
-        //    //using(SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587))
-        //    //using (SmtpClient smtpClient = new SmtpClient("localhost", 1025))
-        //    {
-        //        //mailhog
-        //        //smtpClient.EnableSsl = false;
-        //        smtpClient.EnableSsl = true;
-        //        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-        //        smtpClient.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
-        //        using (MailMessage mailMessage = new MailMessage())
-        //        {
-
-        //            mailMessage.From = new MailAddress(senderEmail);
-        //            mailMessage.To.Add(recipientEmail);
-        //            mailMessage.Subject = subject;
-        //            mailMessage.Body = body;
-
-
-        //            if (!string.IsNullOrEmpty(pdfPath))
-        //            {
-        //                Attachment attachment = new Attachment(pdfPath, MediaTypeNames.Application.Pdf);
-        //                mailMessage.Attachments.Add(attachment);
-        //            }
-
-        //            smtpClient.Send(mailMessage);
-        //        }
-        //    }
-        //}
-        //-----------------------------------------------------------------------------------------------------------------------
     }
 }
