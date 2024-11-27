@@ -27,8 +27,7 @@ namespace ExcelEmailSender
                 string pdfPath = string.Empty;
                 int emailInviate = 0;
                 int emailFallite = 0;
-                string risposta;
-                string nameDocument = string.Empty;
+                string risposta = string.Empty;
 
 
                 // Banner di benvenuto
@@ -133,17 +132,6 @@ namespace ExcelEmailSender
 
                         WriteColoredText(ConsoleColor.Green, $"\n[✓] File PDF trovato: {pdfPath}\n");
 
-                        WriteColoredText(ConsoleColor.Yellow, "\nInserisci il nome che vuoi utilizzare per i file PDF allegati: ");
-                        nameDocument = Console.ReadLine().Trim();
-
-                        if (string.IsNullOrEmpty(nameDocument))
-                        {
-                            WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Devi inserire un nome per il file!\n");
-                            continue;
-                        }
-
-                        nameDocument = SanitizeFileName(nameDocument);
-
                         break;
                     }
                 }
@@ -189,7 +177,7 @@ namespace ExcelEmailSender
                                 subject,
                                 body,
                                 pdfBytes,
-                                $"{nameDocument}.pdf"
+                                $"{Path.GetFileName(pdfPath)}.pdf"
                             );
                         }
                         else
@@ -394,22 +382,5 @@ namespace ExcelEmailSender
             }
         }
         //----------------------------------------------------------------------------------------------------------------------------------------------------
-        private static string SanitizeFileName(string fileName)
-        {
-            // Rimuovi caratteri non consentiti nei nomi file
-            string invalidChars = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            foreach (char c in invalidChars)
-            {
-                fileName = fileName.Replace(c.ToString(), "");
-            }
-
-            // Aggiungi .pdf se non presente
-            if (!fileName.ToLower().EndsWith(".pdf"))
-            {
-                fileName += ".pdf";
-            }
-
-            return fileName;
-        }
     }
 }
