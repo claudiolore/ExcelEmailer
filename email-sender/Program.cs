@@ -20,10 +20,8 @@ namespace ExcelEmailSender
             while (true)
             {
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-               string subject = string.Empty;
+                string subject = string.Empty;
                 string body = string.Empty;
-                string senderEmail = string.Empty;
-                string senderPassword = string.Empty;
                 string excelPath = string.Empty;
                 string outputPdfPath = string.Empty;
                 string pdfPath = string.Empty;
@@ -39,6 +37,10 @@ namespace ExcelEmailSender
                 Console.WriteLine("\t\t\t\t║      BENVENUTO        ║");
                 Console.WriteLine("\t\t\t\t╚═══════════════════════╝\n");
                 Console.ResetColor();
+
+                //VALIDAZIONE CREDENZIALI
+                var credentialValidator = new CredentialValidator();
+                var (senderEmail, senderPassword) = credentialValidator.ValidateCredentials();
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write("--Inserisci il percorso del file Excel in cui ci sono le email a cui inviare: ");
@@ -160,34 +162,6 @@ namespace ExcelEmailSender
                     }
                 }
 
-                //VALIDAZIONE CREDENZIALI
-                while (true)
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("\n--Inserisci l'email del mittente: ");
-                    Console.ResetColor();
-                    senderEmail = Console.ReadLine();
-
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("Inserisci la password dell'email: ");
-                    Console.ResetColor();
-                    senderPassword = Console.ReadLine();
-
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine("\nInizio invio email...\n");
-                    Console.ResetColor();
-
-                    if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPassword))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
-                        Console.WriteLine("Premi un tasto qualunque per riprovare");
-                        Console.ResetColor();
-                        Console.ReadKey();
-                        continue;
-                    }
-                    break;
-                }
 
                 PrintResoconto(senderEmail, excelPath, pdfPath, subject, body);
 
@@ -223,7 +197,11 @@ namespace ExcelEmailSender
                         string name = azienda.Nome;
                         string address = azienda.Indirizzo;
 
-                        PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
+                        if(attachPdf)
+                        {
+                            PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
+                        }
+
                         SendEmail(senderEmail, senderPassword, email, subject, body, attachPdf ? outputPdfPath : null);
 
                         Console.ForegroundColor = ConsoleColor.Green;
