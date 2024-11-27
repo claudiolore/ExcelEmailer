@@ -28,6 +28,8 @@ namespace ExcelEmailSender
                 int emailInviate = 0;
                 int emailFallite = 0;
                 string risposta;
+                string nameDocument = string.Empty;
+
 
                 // Banner di benvenuto
                 WriteColoredText(ConsoleColor.Cyan, "\n\t\t\t\t╔═══════════════════════╗\n");
@@ -114,18 +116,34 @@ namespace ExcelEmailSender
                 {
                     while (true)
                     {
-                        WriteColoredText(ConsoleColor.Yellow, "\nInserisci il percorso del file PDF (deve avere una colonna nominativo, email e indirizzo: ");
+                        WriteColoredText(ConsoleColor.Yellow, "\nInserisci il percorso del file PDF (deve avere una colonna nominativo, email e indirizzo): ");
                         pdfPath = Console.ReadLine().Trim('"');
+
+                        if (string.IsNullOrEmpty(pdfPath) || !pdfPath.ToLower().EndsWith(".pdf"))
+                        {
+                            WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Devi selezionare un file PDF valido!\n");
+                            continue;
+                        }
 
                         if (!File.Exists(pdfPath))
                         {
                             WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Il file PDF specificato non esiste o il percorso è sbagliato!\n");
-                            WriteColoredText(ConsoleColor.Red, "Premi qualunque tasto per riprovare\n");
-                            Console.ReadKey();
                             continue;
                         }
 
                         WriteColoredText(ConsoleColor.Green, $"\n[✓] File PDF trovato: {pdfPath}\n");
+
+                        WriteColoredText(ConsoleColor.Yellow, "\nInserisci il nome che vuoi utilizzare per i file PDF allegati: ");
+                        nameDocument = Console.ReadLine().Trim();
+
+                        if (string.IsNullOrEmpty(nameDocument))
+                        {
+                            WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Devi inserire un nome per il file!\n");
+                            continue;
+                        }
+
+                        nameDocument = SanitizeFileName(nameDocument);
+
                         break;
                     }
                 }
@@ -147,7 +165,6 @@ namespace ExcelEmailSender
                 {
                     try
                     {
-                        string pdfDaModificare = pdfPath;
                         Azienda azienda = listaAziende.FirstOrDefault(a => a.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 
                         if (azienda == null)
@@ -161,18 +178,27 @@ namespace ExcelEmailSender
 
                         if (attachPdf)
                         {
-                            PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
-                        }
+                            // Genera il PDF in memoria come byte array
+                            byte[] pdfBytes = PdfMemoryHandler.GeneratePdfInMemory(pdfPath, name, address, email);
 
-                        SendEmail(senderEmail, senderPassword, email, subject, body, attachPdf ? outputPdfPath : null);
+                            // Invia email con il PDF in byte
+                            PdfMemoryHandler.SendEmailWithPdfBytes(
+                                senderEmail,
+                                senderPassword,
+                                email,
+                                subject,
+                                body,
+                                pdfBytes,
+                                $"{nameDocument}.pdf"
+                            );
+                        }
+                        else
+                        {
+                            SendEmail(senderEmail, senderPassword, email, subject, body);
+                        }
 
                         WriteColoredText(ConsoleColor.Green, $"\n[✓] Email inviata con successo a: {email}\n");
                         emailInviate++;
-                    }
-                    catch (SmtpException ex)
-                    {
-                        WriteColoredText(ConsoleColor.Red, $"\n[✗] SMTP Error: {ex.StatusCode} - {ex.Message}\n");
-                        emailFallite++;
                     }
                     catch (Exception ex)
                     {
@@ -274,7 +300,6 @@ namespace ExcelEmailSender
                 var builder = new BodyBuilder();
                 builder.TextBody = body;
 
-                // Aggiungi PDF se specificato
                 if (!string.IsNullOrEmpty(pdfPath))
                 {
                     builder.Attachments.Add(pdfPath);
@@ -283,7 +308,6 @@ namespace ExcelEmailSender
 
                 using (var client = new SmtpClient())
                 {
-                    // Disabilita la verifica del certificato SSL (solo per debug)
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
                     // Connessione con timeout esteso
@@ -291,13 +315,10 @@ namespace ExcelEmailSender
                     //client.Connect("smtp.gmail.it", 587, SecureSocketOptions.SslOnConnect);
                     client.Connect("localhost", 1025);
 
-                    // Autenticazione
                     client.Authenticate(senderEmail, senderPassword);
+                     
+                    client.Timeout = 20000;
 
-                    // Timeout più lungo per l'invio
-                    client.Timeout = 20000; // 30 secondi
-
-                    // Invio
                     client.Send(message);
                     client.Disconnect(true);
                 }
@@ -371,6 +392,24 @@ namespace ExcelEmailSender
             {
                 Console.ForegroundColor = originalColor;
             }
+        }
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
+        private static string SanitizeFileName(string fileName)
+        {
+            // Rimuovi caratteri non consentiti nei nomi file
+            string invalidChars = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalidChars)
+            {
+                fileName = fileName.Replace(c.ToString(), "");
+            }
+
+            // Aggiungi .pdf se non presente
+            if (!fileName.ToLower().EndsWith(".pdf"))
+            {
+                fileName += ".pdf";
+            }
+
+            return fileName;
         }
     }
 }
