@@ -29,40 +29,31 @@ namespace ExcelEmailSender
                 int emailFallite = 0;
                 string risposta;
 
-
-
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("\n\t\t\t\t╔═══════════════════════╗");
-                Console.WriteLine("\t\t\t\t║   Excel Email Sender  ║");
-                Console.WriteLine("\t\t\t\t║      BENVENUTO        ║");
-                Console.WriteLine("\t\t\t\t╚═══════════════════════╝\n");
-                Console.ResetColor();
+                // Banner di benvenuto
+                WriteColoredText(ConsoleColor.Cyan, "\n\t\t\t\t╔═══════════════════════╗\n");
+                WriteColoredText(ConsoleColor.Cyan, "\t\t\t\t║   Excel Email Sender  ║\n");
+                WriteColoredText(ConsoleColor.Cyan, "\t\t\t\t║      BENVENUTO        ║\n");
+                WriteColoredText(ConsoleColor.Cyan, "\t\t\t\t╚═══════════════════════╝\n\n");
 
                 //VALIDAZIONE CREDENZIALI
                 var credentialValidator = new CredentialValidator();
                 var (senderEmail, senderPassword) = credentialValidator.ValidateCredentials();
 
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("--Inserisci il percorso del file Excel in cui ci sono le email a cui inviare: ");
-                Console.ResetColor();
+                WriteColoredText(ConsoleColor.Yellow, "--Inserisci il percorso del file Excel in cui ci sono le email a cui inviare: ");
                 excelPath = Console.ReadLine().Trim('"');
 
                 if (string.IsNullOrEmpty(excelPath))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\n⚠ ATTENZIONE! Devi inserire almeno un carattere!");
-                    Console.WriteLine("Premi qualunque tasto per riprovare");
-                    Console.ResetColor();
+                    WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Devi inserire almeno un carattere!\n");
+                    WriteColoredText(ConsoleColor.Red, "Premi qualunque tasto per riprovare\n");
                     Console.ReadKey();
                     continue;
                 }
 
                 if (!File.Exists(excelPath))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\n⚠ ATTENZIONE! Il file Excel specificato non esiste o il percorso è sbagliato!");
-                    Console.WriteLine("Premi qualunque tasto per riprovare");
-                    Console.ResetColor();
+                    WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Il file Excel specificato non esiste o il percorso è sbagliato!\n");
+                    WriteColoredText(ConsoleColor.Red, "Premi qualunque tasto per riprovare\n");
                     Console.ReadKey();
                     continue;
                 }
@@ -70,21 +61,15 @@ namespace ExcelEmailSender
                 //CARICAMENTO INFORMAZIONI AZIENDE
                 List<Azienda> listaAziende = ReadAziendeFromExcel(excelPath);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"\nLettura del file: {excelPath}\n");
-                Console.ResetColor();
+                WriteColoredText(ConsoleColor.Green, $"\nLettura del file: {excelPath}\n\n");
 
                 List<string> emailAddresses = GetEmails(listaAziende);
 
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"\nTrovate {emailAddresses.Count} email da inviare.");
-                Console.ResetColor();
+                WriteColoredText(ConsoleColor.Cyan, $"\nTrovate {emailAddresses.Count} email da inviare.\n");
 
                 if (emailAddresses.Count == 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\n⚠ ATTENZIONE! Nessuna email trovata nel file Excel.");
-                    Console.ResetColor();
+                    WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Nessuna email trovata nel file Excel.\n");
                     Console.ReadKey();
                     continue;
                 }
@@ -92,17 +77,13 @@ namespace ExcelEmailSender
                 //INSERIMENTO OGGETTO EMAIL
                 while (true)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("\n--Inserisci l'oggetto dell'email: ");
-                    Console.ResetColor();
+                    WriteColoredText(ConsoleColor.Yellow, "\n--Inserisci l'oggetto dell'email: ");
                     subject = Console.ReadLine();
 
                     if (string.IsNullOrEmpty(subject))
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
-                        Console.WriteLine("Premi un tasto qualunque per riprovare");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Inserire almeno un carattere\n");
+                        WriteColoredText(ConsoleColor.Red, "Premi un tasto qualunque per riprovare\n");
                         Console.ReadKey();
                         continue;
                     }
@@ -112,17 +93,13 @@ namespace ExcelEmailSender
                 //INSERIMENTO CORPO EMAIL
                 while (true)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("\n--Inserisci il corpo dell'email: ");
-                    Console.ResetColor();
+                    WriteColoredText(ConsoleColor.Yellow, "\n--Inserisci il corpo dell'email: ");
                     body = Console.ReadLine();
 
                     if (string.IsNullOrEmpty(body))
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
-                        Console.WriteLine("Premi un tasto qualunque per riprovare");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Inserire almeno un carattere\n");
+                        WriteColoredText(ConsoleColor.Red, "Premi un tasto qualunque per riprovare\n");
                         Console.ReadKey();
                         continue;
                     }
@@ -130,45 +107,33 @@ namespace ExcelEmailSender
                 }
 
                 //ALLEGARE UN PDF
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("\nVuoi allegare un PDF? (S/N): ");
-                Console.ResetColor();
+                WriteColoredText(ConsoleColor.Yellow, "\nVuoi allegare un PDF? (S/N): ");
                 bool attachPdf = Console.ReadLine().ToUpper() == "S";
-
 
                 if (attachPdf)
                 {
                     while (true)
                     {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write("\nInserisci il percorso del file PDF (deve avere una colonna nominativo, email e indirizzo: ");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Yellow, "\nInserisci il percorso del file PDF (deve avere una colonna nominativo, email e indirizzo: ");
                         pdfPath = Console.ReadLine().Trim('"');
 
                         if (!File.Exists(pdfPath))
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("\n⚠ ATTENZIONE! Il file PDF specificato non esiste o il percorso è sbagliato!");
-                            Console.WriteLine("Premi qualunque tasto per riprovare");
-                            Console.ResetColor();
+                            WriteColoredText(ConsoleColor.Red, "\n⚠ ATTENZIONE! Il file PDF specificato non esiste o il percorso è sbagliato!\n");
+                            WriteColoredText(ConsoleColor.Red, "Premi qualunque tasto per riprovare\n");
                             Console.ReadKey();
                             continue;
                         }
 
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"\n[✓] File PDF trovato: {pdfPath}");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Green, $"\n[✓] File PDF trovato: {pdfPath}\n");
                         break;
                     }
                 }
 
-
                 PrintResoconto(senderEmail, excelPath, pdfPath, subject, body);
 
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\nVuoi continuare? (s/n)");
-                Console.ResetColor();
-                
+                WriteColoredText(ConsoleColor.Yellow, "\nVuoi continuare? (s/n)\n");
+
                 risposta = string.Empty;
                 risposta = Console.ReadLine().ToLower();
 
@@ -176,7 +141,6 @@ namespace ExcelEmailSender
                 {
                     break;
                 }
-
 
                 //INVIO EMAIL
                 foreach (string email in emailAddresses)
@@ -188,39 +152,31 @@ namespace ExcelEmailSender
 
                         if (azienda == null)
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"\n[⚠] Nessuna azienda trovata per l'email: {email}");
-                            Console.ResetColor();
+                            WriteColoredText(ConsoleColor.Red, $"\n[⚠] Nessuna azienda trovata per l'email: {email}\n");
                             continue;
                         }
 
                         string name = azienda.Nome;
                         string address = azienda.Indirizzo;
 
-                        if(attachPdf)
+                        if (attachPdf)
                         {
                             PdfFormFiller.FillPdf(pdfDaModificare, outputPdfPath, name, address, email);
                         }
 
                         SendEmail(senderEmail, senderPassword, email, subject, body, attachPdf ? outputPdfPath : null);
 
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"\n[✓] Email inviata con successo a: {email}");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Green, $"\n[✓] Email inviata con successo a: {email}\n");
                         emailInviate++;
                     }
                     catch (SmtpException ex)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"\n[✗] SMTP Error: {ex.StatusCode} - {ex.Message}");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Red, $"\n[✗] SMTP Error: {ex.StatusCode} - {ex.Message}\n");
                         emailFallite++;
                     }
                     catch (Exception ex)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"\n[✗] Errore nell'invio dell'email a {email}: {ex.Message}");
-                        Console.ResetColor();
+                        WriteColoredText(ConsoleColor.Red, $"\n[✗] Errore nell'invio dell'email a {email}: {ex.Message}\n");
                         emailFallite++;
                     }
                 }
@@ -233,7 +189,6 @@ namespace ExcelEmailSender
                     break;
                 }
             }
-
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -369,7 +324,7 @@ namespace ExcelEmailSender
         }
         //----------------------------------------------------------------------------------------------------------------------------------------------------
         static void SendEmail(string senderEmail, string senderPassword, string recipientEmail,
-                            string subject, string body, string pdfPath = null)
+                     string subject, string body, string pdfPath = null)
         {
             try
             {
@@ -377,7 +332,6 @@ namespace ExcelEmailSender
                 message.From.Add(new MailboxAddress("", senderEmail));
                 message.To.Add(new MailboxAddress("", recipientEmail));
                 message.Subject = subject;
-
                 var builder = new BodyBuilder();
                 builder.TextBody = body;
 
@@ -386,7 +340,6 @@ namespace ExcelEmailSender
                 {
                     builder.Attachments.Add(pdfPath);
                 }
-
                 message.Body = builder.ToMessageBody();
 
                 using (var client = new SmtpClient())
@@ -412,12 +365,13 @@ namespace ExcelEmailSender
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n[ERRORE DETTAGLIATO] Invio email fallito:");
-                Console.WriteLine($"Messaggio: {ex.Message}");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                WriteColoredText(ConsoleColor.Red, "\n[ERRORE DETTAGLIATO] Invio email fallito:\n");
+                WriteColoredText(ConsoleColor.Red, $"Messaggio: {ex.Message}\n");
+                WriteColoredText(ConsoleColor.Red, $"Stack Trace: {ex.StackTrace}\n");
+
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    WriteColoredText(ConsoleColor.Red, $"Inner Exception: {ex.InnerException.Message}\n");
                 }
                 throw;
             }
@@ -431,60 +385,53 @@ namespace ExcelEmailSender
         public static void PrintResoconto(string senderEmail, string excelPath, string pdfPath, string subject, string body)
         {
             // RESOCONTO
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\n\t===== RESOCONTO =====");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Cyan, "\n\t===== RESOCONTO =====\n");
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Email mittente: ");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, "Email mittente: ");
             Console.WriteLine(senderEmail);
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Path Excel: ");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, "Path Excel: ");
             Console.WriteLine(excelPath);
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Path PDF: ");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, "Path PDF: ");
             Console.WriteLine(pdfPath);
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Oggetto email: ");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, "Oggetto email: ");
             Console.WriteLine(subject);
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Body: ");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, "Body: ");
             string shortBody = body.Length > 200 ? body.Substring(0, 200).TrimEnd() : body.TrimEnd();
             Console.WriteLine($"{shortBody}...");
         }
         //----------------------------------------------------------------------------------------------------------------------------------------------------
         public static void PrintFinalReport(int emailInviate, int emailFallite)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\n\t===== REPORT FINALE =====");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Cyan, "\n\t===== REPORT FINALE =====\n");
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"\nEmail inviate {emailInviate}");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, $"\nEmail inviate {emailInviate}\n");
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"\nEmail fallite {emailFallite}");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Red, $"\nEmail fallite {emailFallite}\n");
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nProcesso completato.");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Green, "\nProcesso completato.\n");
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Premi 'E' per uscire.");
-            Console.WriteLine("Oppure un altro tasto per ripetere.");
-            Console.ResetColor();
+            WriteColoredText(ConsoleColor.Yellow, "Premi 'E' per uscire.\n");
+            WriteColoredText(ConsoleColor.Yellow, "Oppure un altro tasto per ripetere.\n");
         }
+        //----------------------------------------------------------------------------------------------------------------------------------------------------
+        public static void WriteColoredText(ConsoleColor color, string text)
+        {
+            var originalColor = Console.ForegroundColor;
 
+            try
+            {
+                Console.ForegroundColor = color;
+
+                Console.Write(text);
+            }
+            finally
+            {
+                Console.ForegroundColor = originalColor;
+            }
+        }
     }
 }
