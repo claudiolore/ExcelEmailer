@@ -20,10 +20,44 @@ namespace ExcelEmailSender
             while (true)
             {
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                string subject = "SUPPORTO INFORMATICO PER CONTABILIZZAZIONE CALORE E MONITORAGGIO ENERGETICO";
+                string body = @"È noto che i sistemi di contabilizzazione del calore per gli impianti di riscaldamento centralizzato, resi obbligatori a partire dal 2014, 
+                attualmente devono anche:
 
-               
-                string subject = string.Empty;
-                string body = string.Empty;
+                • essere leggibili da remoto,
+                • prevedere la fornitura agli utenti finali dei dati di consumo almeno una volta al mese.
+
+                (ai sensi del D.lgs 102/2014, per maggiori dettagli si veda in allegato)
+
+                Rispondere a questi nuovi obblighi può essere oneroso. Non adeguare la contabilizzazione ai predetti requisiti può far perdere clienti.
+
+                La soluzione PLANERGY® che vi presentiamo è l'opportunità di innovare, senza investimenti, il servizio di contabilizzazione da voi 
+                erogato ai condomìni vostri clienti.
+
+                Con la nostra soluzione, la vostra azienda potrà:
+                • fidelizzare i condomìni clienti,
+                • adeguare il servizio di contabilizzazione offerto, rispondendo agli obblighi di accesso da remoto e di fornitura dati minima 
+                  (almeno una volta al mese),
+                • fornire un servizio di contabilizzazione che include un innovativo monitoraggio via web.
+
+                In allegato trova una breve descrizione dell'applicativo web PLANERGY® che la sua azienda potrà offrire ai suoi clienti.
+
+                La sua attivazione potrà avvenire con il nostro supporto informatico, basato su una Convenzione che prevede, da parte nostra:
+                • configurazione software degli apparati di raccolta e trasmissione dati,
+                • fornitura degli accessi per gli utenti finali all'applicativo web,
+                • elaborazione dati per i piani di riparto annuali (il vostro onere si ridurrà alla sola impaginazione finale personalizzata, se
+                  necessaria, ed alla consegna all'amministratore del condominio),
+                • patto di non concorrenza (ci impegniamo a non effettuare alcuna azione commerciale rivolta ai suoi clienti in concorrenza
+                  con la vostra azienda).
+
+                Se interessato, risponda per favore a questa mail, fornendo il nominativo da contattare per un incontro di approfondimento, anche
+                per verificare insieme quali apparati di raccolta e trasmissione dati (attualmente presenti ovvero che potreste proporre ai condomìni
+                interessati) siano adatti all'attivazione del nuovo servizio.
+
+                In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
+
+                //string subject = string.Empty;
+                //string body = string.Empty;
                 string senderEmail = string.Empty;
                 string senderPassword = string.Empty;
                 string excelPath = string.Empty;
@@ -90,44 +124,44 @@ namespace ExcelEmailSender
                 }
 
                 //INSERIMENTO OGGETTO EMAIL
-                while (true)
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("\n--Inserisci l'oggetto dell'email: ");
-                    Console.ResetColor();
-                    subject = Console.ReadLine();
+                //while (true)
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Yellow;
+                //    Console.Write("\n--Inserisci l'oggetto dell'email: ");
+                //    Console.ResetColor();
+                //    subject = Console.ReadLine();
 
-                    if (string.IsNullOrEmpty(subject))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
-                        Console.WriteLine("Premi un tasto qualunque per riprovare");
-                        Console.ResetColor();
-                        Console.ReadKey();
-                        continue;
-                    }
-                    break;
-                }
+                //    if (string.IsNullOrEmpty(subject))
+                //    {
+                //        Console.ForegroundColor = ConsoleColor.Red;
+                //        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
+                //        Console.WriteLine("Premi un tasto qualunque per riprovare");
+                //        Console.ResetColor();
+                //        Console.ReadKey();
+                //        continue;
+                //    }
+                //    break;
+                //}
 
-                //INSERIMENTO CORPO EMAIL
-                while (true)
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("\n--Inserisci il corpo dell'email: ");
-                    Console.ResetColor();
-                    body = Console.ReadLine();
+                ////INSERIMENTO CORPO EMAIL
+                //while (true)
+                //{
+                //    Console.ForegroundColor = ConsoleColor.Yellow;
+                //    Console.Write("\n--Inserisci il corpo dell'email: ");
+                //    Console.ResetColor();
+                //    body = Console.ReadLine();
 
-                    if (string.IsNullOrEmpty(body))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
-                        Console.WriteLine("Premi un tasto qualunque per riprovare");
-                        Console.ResetColor();
-                        Console.ReadKey();
-                        continue;
-                    }
-                    break;
-                }
+                //    if (string.IsNullOrEmpty(body))
+                //    {
+                //        Console.ForegroundColor = ConsoleColor.Red;
+                //        Console.WriteLine("\n⚠ ATTENZIONE! Inserire almeno un carattere");
+                //        Console.WriteLine("Premi un tasto qualunque per riprovare");
+                //        Console.ResetColor();
+                //        Console.ReadKey();
+                //        continue;
+                //    }
+                //    break;
+                //}
 
                 //ALLEGARE UN PDF
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -398,7 +432,8 @@ namespace ExcelEmailSender
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Planergy", senderEmail));
+                //message.From.Add(new MailboxAddress("Planergy", senderEmail));
+                message.From.Add(new MailboxAddress("", senderEmail));
                 message.To.Add(new MailboxAddress("", recipientEmail));
                 message.Subject = subject;
 
@@ -420,8 +455,8 @@ namespace ExcelEmailSender
 
                     // Connessione con timeout esteso
                     //client.Connect("smtps.aruba.it", 465, SecureSocketOptions.SslOnConnect);
-                    client.Connect("smtp.gmail.it", 587, SecureSocketOptions.SslOnConnect);
-                    //client.Connect("localhost", 1025);
+                    //client.Connect("smtp.gmail.it", 587, SecureSocketOptions.SslOnConnect);
+                    client.Connect("localhost", 1025);
 
                     // Autenticazione
                     client.Authenticate(senderEmail, senderPassword);
@@ -510,5 +545,40 @@ namespace ExcelEmailSender
             Console.ResetColor();
         }
 
+//        string subject = "SUPPORTO INFORMATICO PER CONTABILIZZAZIONE CALORE E MONITORAGGIO ENERGETICO";
+//        string body = @"È noto che i sistemi di contabilizzazione del calore per gli impianti di riscaldamento centralizzato, resi obbligatori a partire dal 2014, 
+//attualmente devono anche:
+
+//• essere leggibili da remoto,
+//• prevedere la fornitura agli utenti finali dei dati di consumo almeno una volta al mese.
+
+//(ai sensi del D.lgs 102/2014, per maggiori dettagli si veda in allegato)
+
+//Rispondere a questi nuovi obblighi può essere oneroso. Non adeguare la contabilizzazione ai predetti requisiti può far perdere clienti.
+
+//La soluzione PLANERGY® che vi presentiamo è l'opportunità di innovare, senza investimenti, il servizio di contabilizzazione da voi 
+//erogato ai condomìni vostri clienti.
+
+//Con la nostra soluzione, la vostra azienda potrà:
+//• fidelizzare i condomìni clienti,
+//• adeguare il servizio di contabilizzazione offerto, rispondendo agli obblighi di accesso da remoto e di fornitura dati minima 
+//  (almeno una volta al mese),
+//• fornire un servizio di contabilizzazione che include un innovativo monitoraggio via web.
+
+//In allegato trova una breve descrizione dell'applicativo web PLANERGY® che la sua azienda potrà offrire ai suoi clienti.
+
+//La sua attivazione potrà avvenire con il nostro supporto informatico, basato su una Convenzione che prevede, da parte nostra:
+//• configurazione software degli apparati di raccolta e trasmissione dati,
+//• fornitura degli accessi per gli utenti finali all'applicativo web,
+//• elaborazione dati per i piani di riparto annuali (il vostro onere si ridurrà alla sola impaginazione finale personalizzata, se
+//  necessaria, ed alla consegna all'amministratore del condominio),
+//• patto di non concorrenza (ci impegniamo a non effettuare alcuna azione commerciale rivolta ai suoi clienti in concorrenza
+//  con la vostra azienda).
+
+//Se interessato, risponda per favore a questa mail, fornendo il nominativo da contattare per un incontro di approfondimento, anche
+//per verificare insieme quali apparati di raccolta e trasmissione dati (attualmente presenti ovvero che potreste proporre ai condomìni
+//interessati) siano adatti all'attivazione del nuovo servizio.
+
+//In attesa di un vostro gradito riscontro, porgiamo distinti saluti.";
     }
 }
