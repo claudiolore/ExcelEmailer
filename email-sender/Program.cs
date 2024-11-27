@@ -190,67 +190,6 @@ namespace ExcelEmailSender
                 }
             }
         }
-
-        //----------------------------------------------------------------------------------------------------------------------------------------------------
-        static List<string> ReadEmailsFromExcel(string filePath)
-        {
-            List<string> emails = new List<string>();
-
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
-            {
-                if (package.Workbook.Worksheets.Count == 0)
-                {
-                    Console.WriteLine("\nATTENZIONE!!! Il file Excel non contiene fogli di lavoro!");
-                    return emails;
-                }
-
-                var worksheet = package.Workbook.Worksheets[0];
-
-                // Verifica se il foglio contiene righe
-                if (worksheet.Dimension == null)
-                {
-                    Console.WriteLine("\nATTENZIONE!!! Il foglio di lavoro è vuoto!");
-                    return emails;
-                }
-
-                int rowCount = worksheet.Dimension.Rows;
-                int colCount = worksheet.Dimension.Columns;
-
-                // Cerca la colonna "Email" nella prima riga
-                int emailColumnIndex = -1;
-                for (int col = 1; col <= colCount; col++)
-                {
-                    string header = worksheet.Cells[1, col].Value?.ToString()?.Trim();
-                    if (!string.IsNullOrEmpty(header) && header.Equals("Email", StringComparison.OrdinalIgnoreCase))
-                    {
-                        emailColumnIndex = col;
-                        break;
-                    }
-                }
-
-                if (emailColumnIndex == -1)
-                {
-                    Console.WriteLine("\nATTENZIONE!!! Non è stata trovata alcuna colonna 'Email' nella prima riga!");
-                    return emails;
-                }
-
-                Console.WriteLine($"\nColonna 'Email' trovata all'indice: {emailColumnIndex}");
-
-                // Leggi le email dalla colonna identificata
-                for (int row = 2; row <= rowCount; row++) // Dalla seconda riga in poi (saltando l'intestazione)
-                {
-                    string email = worksheet.Cells[row, emailColumnIndex].Value?.ToString()?.Trim();
-                    if (!string.IsNullOrEmpty(email))
-                    {
-                        emails.Add(email);
-                        Console.WriteLine($"-Email trovata: {email}");
-                    }
-                }
-            }
-
-            return emails;
-        }
-
         //----------------------------------------------------------------------------------------------------------------------------------------------------
         public static List<Azienda> ReadAziendeFromExcel(string filePath)
         {
