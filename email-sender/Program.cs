@@ -184,8 +184,8 @@ namespace ExcelEmailSender
                         {
                             SendEmail(senderEmail, senderPassword, email, subject, body);
                         }
-
-                        WriteColoredText(ConsoleColor.Green, $"\n[✓] Email inviata con successo a: {email}\n");
+                        WriteColoredText(ConsoleColor.Green, $"\n[✓] Email inviata con successo a: ");
+                        WriteColoredText(ConsoleColor.Cyan, $"{email}");
                         emailInviate++;
                     }
                     catch (Exception ex)

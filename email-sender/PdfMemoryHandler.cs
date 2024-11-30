@@ -29,12 +29,13 @@ namespace email_sender
                     {
                         PdfAcroForm form = PdfAcroForm.GetAcroForm(pdfDoc, true);
 
+
                         var fields = form.GetFormFields();
 
                         if (fields.ContainsKey("nome"))
                             fields["nome"].SetValue(name.ToUpper());
                         if (fields.ContainsKey("indirizzo"))
-                            fields["indirizzo"].SetValue(address.ToLower());
+                            fields["indirizzo"].SetValue(address);
                         if (fields.ContainsKey("email"))
                             fields["email"].SetValue(email.ToLower());
 
