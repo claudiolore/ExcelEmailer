@@ -64,6 +64,7 @@ namespace email_sender
             try
             {
                 var message = new MimeMessage();
+                //message.From.Add(new MailboxAddress("Planergy", senderEmail));
                 message.From.Add(new MailboxAddress("", senderEmail));
                 message.To.Add(new MailboxAddress("", recipientEmail));
                 message.Subject = subject;
